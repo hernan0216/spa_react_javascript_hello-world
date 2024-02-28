@@ -1,10 +1,29 @@
 import { useAuth0 } from "@auth0/auth0-react";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { CodeSnippet } from "../components/code-snippet";
 import { PageLayout } from "../components/page-layout";
 
 export const ProfilePage = () => {
-  const { user } = useAuth0();
+  const { user, getAccessTokenSilently, getIdTokenClaims } = useAuth0();
+
+  const [idToken, setIdToken] = useState()
+    useEffect(() => {
+      const fetchIdToken = async () => {
+        const claims = await getIdTokenClaims()
+        setIdToken(claims.__raw)
+      }
+      fetchIdToken()
+    }, [])
+
+  const [idAccessToken, setIdAccessToken] = useState()
+    useEffect(() => {
+      const fetchIdAccessToken = async () => {
+        const token = await getAccessTokenSilently()
+        setIdAccessToken(token)
+      }
+      fetchIdAccessToken()
+    }, [])
+
 
   if (!user) {
     return null;
@@ -42,6 +61,14 @@ export const ProfilePage = () => {
               <CodeSnippet
                 title="Decoded ID Token"
                 code={JSON.stringify(user, null, 2)}
+              />
+              <CodeSnippet
+                title="Raw ID Token"
+                code={ idToken }
+              />
+              <CodeSnippet
+                title="Raw ID AccessToken"
+                code={ idAccessToken }
               />
             </div>
           </div>
